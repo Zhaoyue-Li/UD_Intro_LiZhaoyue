@@ -100,25 +100,28 @@ class WallE:
 # These are the 5 functions you have to fill in
     def walk_back_and_forth(self):
         t = 0
-        if not (t == 1 and self.check_wall()):
-            if t == 0 and self.check_wall():
-                self.turn_right()
-                self.turn_right()
-                t = 1
-            else:
-                self.move()
+        if self.check_wall():
+            self.turn_right()
+            self.turn_right()
+            t = 1            
+        elif t == 1 and self.check_wall():
+            return
+        else:
+            self.move()
     #maybe you'll find out that I'm trying to stop Wall-E after it retures
     #but can't make it :(
 
 
     def walk_a_lap(self):
         t = 0
-        if not (t == 1and self.check_wall()):
-            if (t < 3 and self.check_wall()):
-                self.turn_right()
-                t = t+1
-            else:
-                self.move()
+        if (t < 3 and self.check_wall()):
+            self.turn_right()
+            t = t+1
+            print(t)
+        elif t == 3 and self.check_wall():
+            return
+        else:
+            self.move() 
         
     def find_the_box(self):
         if self.check_on_box():
@@ -180,9 +183,7 @@ class WallE:
                     else:
                         self.move()
                         self.turn_left()
-    #tried for hours and can never get it right
-    #even asked chat GPT and can't get the right result
-    #giving up and hoping to get a right anwser :(
+    #tried for hours and can never get it right :(
 
                 
 
