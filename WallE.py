@@ -90,6 +90,10 @@ class WallE:
         # and make sure they are at this indent level
 
         self.EXAMPLE = 0
+        self.TURNS = 0
+        self.FINISHED = False
+        self.DIRECTION = 0
+        firstcheck = 0
 
     # Declare any help functions here (also use all caps for these!!), it has to include self in the argument.
     # and make sure they are at this indent level
@@ -99,44 +103,42 @@ class WallE:
 
 # These are the 5 functions you have to fill in
     def walk_back_and_forth(self):
-        t = 0
-        if self.check_wall():
-            self.turn_right()
-            self.turn_right()
-            t = 1            
-        elif t == 1 and self.check_wall():
+        if self.TURNS == 1 and self.check_wall():
             return
+        elif self.check_wall():
+            self.turn_right()
+            self.turn_right()
+            self.TURNS = 1            
         else:
             self.move()
-    #maybe you'll find out that I'm trying to stop Wall-E after it retures
-    #but can't make it :(
-
 
     def walk_a_lap(self):
-        t = 0
-        if (t < 3 and self.check_wall()):
-            self.turn_right()
-            t = t+1
-            print(t)
-        elif t == 3 and self.check_wall():
+        if self.TURNS == 3 and self.check_wall():
             return
+        elif (self.TURNS < 3 and self.check_wall()):
+            self.turn_right()
+            self.TURNS = self.TURNS+1
         else:
             self.move() 
         
     def find_the_box(self):
-        if self.check_on_box():
-            self.pick_up_box()
-        if self.check_wall():
-            if (self.position[1]+self.direction[1])%2 == 0:
-                self.turn_right()
-                self.move()
-                self.turn_right()
+        if self.FINISHED == False:
+            if self.check_on_box():
+                self.pick_up_box()
+                self.FINISHED = True
+            elif self.check_wall():
+                if self.DIRECTION == 0:
+                    self.turn_right()
+                    self.move()
+                    self.turn_right()
+                    self.DIRECTION = 1
+                else:
+                    self.turn_left()
+                    self.move()
+                    self.turn_left()
+                    self.DIRECTION = 0
             else:
-                self.turn_left()
                 self.move()
-                self.turn_left()
-        else:
-            self.move()
 
         
     def swap_all_boxes(self):
@@ -158,7 +160,7 @@ class WallE:
             self.move()
 
     def walk_around_obstacle(self):
-        firstcheck = 0
+        
         if self.check_wall() == False:
             self.move()
         else:
