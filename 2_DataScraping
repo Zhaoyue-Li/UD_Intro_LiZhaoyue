@@ -1,1 +1,121 @@
+#2_DataScraping
 
+# Import Selenium and its sub libraries
+import selenium 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from time import sleep
+import re
+import csv
+import os
+import requests
+
+
+url="https://www.archdaily.cn/"
+
+driver = webdriver.Chrome()
+driver.get(url)
+sleep(3)
+
+# search
+driver.find_element("xpath", '//*[@id="js-afd-nav"]/div/a[1]/p').click()
+sleep(3)
+
+search_query = driver.find_element("id", "searchbar-input")
+search_query.send_keys("改造")
+search_query.send_keys(Keys.RETURN)
+sleep(6)
+
+#Create empty lists and file path
+sort_list = []
+name_list = []
+link_list = []
+t = 0
+csv_file_path = "/C:/Users/19722/Desktop"
+image_path = "/C:/Users/19722/Desktop/python/image"
+
+def page_data(driver):
+    #Get all projects
+    projects=driver.find_elements("class name", "gridview__item")
+    sleep(6)
+
+    print(len(projects))
+
+    #for p in range(len(projects)):
+    for p in range(20):
+
+    	#Extracting title
+        sort = projects[p].find_element("class name","gridview__entry-category").text
+
+        #Extracting title
+        name = projects[p].find_element("class name","gridview__entry-title").text
+        
+        #Extraction of link
+        link = projects[p].find_element("class name","gridview__content").get_attribute('href')
+                          
+        #Add item to the respective lists
+        sort_list.append(sort)
+        name_list.append(name)
+        link_list.append(link)
+        sleep(3) 
+
+
+# Get scroll height
+last_height = driver.execute_script("return document.body.scrollHeight")
+
+while True:
+    # Scroll down 
+	driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+	sleep(5)
+
+	# Calculate new scroll height and compare with last scroll height
+	new_height = driver.execute_script("return document.body.scrollHeight")
+    
+	if new_height == last_height:
+	    break
+	last_height = new_height
+
+page_data(driver)
+
+print(name_list)
+
+#Write the data to a csv file
+with open('archinf.csv', 'w',newline='',encoding='utf-8') as csvfile: 
+    writer = csv.writer(csvfile) 
+    writer.writerow(["sort","name","link"])
+    for i in range(len(link_list)):
+        data = [sort_list[i],name_list[i],link_list[i]]
+        writer.writerow(data)
+
+#read the produced csv and iterate through the list
+with open("archinf.csv", 'r',encoding='utf-8') as csvfile:
+    reader = csv.reader(csvfile)
+    
+    for row in reader:
+        #open each link
+        ur2 = row[2] 
+        driver.get(ur2)
+        sleep(3)
+
+        #find the image link
+        imglink = driver.find_element("tag name","source").get_attribute('srcset') 
+        
+        #print(imglink)
+        t += 1    
+        
+        response = requests.get(imglink)
+
+        #name the images
+        imagename=os.path.join(image_path,"image" + str(t)+".jpg")
+
+        #save the images
+        with open(imagename, "wb") as f:
+            f.write(response.content)
+
+
+#Close the webpage
+driver.quit()
